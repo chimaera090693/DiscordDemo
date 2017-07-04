@@ -12,9 +12,36 @@ namespace DiscordDemo
 {
     public partial class Main : Form
     {
-        public Main()
+        public Main(DiscordThread thread)
         {
             InitializeComponent();
         }
+
+
+
+        #region Form Event
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnLogout_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        #endregion
+
     }
 }
