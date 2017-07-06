@@ -26,7 +26,8 @@ namespace DiscordDemo
 
         private void LogReceived(object sender, DebugLogMessageEventArgs e)
         {
-            AddStringToPingConsole(e.Timestamp.ToString("dd/MM/yyyy HH:mm:ss") + " : " + e.Message, true);
+            //AddStringToPingConsole(e.Timestamp.ToString("dd/MM/yyyy HH:mm:ss") + " : " + e.Message, true);
+            SetText(e.Timestamp.ToString("dd/MM/yyyy HH:mm:ss") + " : " + e.Message);
 
         }
 
@@ -53,8 +54,8 @@ namespace DiscordDemo
                 DiscordConfig cfg = new DiscordConfig();
                 cfg = new DiscordConfig
                 {
-                    Token = tbToken.Text,
-                    TokenType = TokenType.Bearer,
+                    Token = tbToken.Text.Trim(),
+                    TokenType = TokenType.Bot,
                     AutoReconnect = true,
                     LogLevel = LogLevel.Debug,
                     UseInternalLogHandler = true
@@ -62,17 +63,15 @@ namespace DiscordDemo
                 btnStart.Enabled = false;
                 btnStop.Enabled = true;
                 parentRef.InitialClient(cfg, LogReceived);
-                parentRef.StartMain();
-
             }
         }
 
         private void btnDispose_Click(object sender, EventArgs e)
         {
-            parentRef.Client.DisconnectAsync();
             btnDispose.Enabled = false;
             btnStart.Enabled = true;
-            parentRef.Client.Dispose();
+            parentRef.Client.DisconnectAsync();
+            DiscordThread.botThread.Abort();
         }
 
         #endregion
@@ -94,7 +93,36 @@ namespace DiscordDemo
             tbConsole.ScrollToCaret();
             PingRowCounts++;
         }
+        private delegate void SetTextCallback(string text);
 
+        private void SetText(string text)
+        {
+            // thread-safe call
+            try
+            {
+
+                if (this.tbConsole.InvokeRequired)
+                {
+                    SetTextCallback d = new SetTextCallback(SetText);
+                    this.Invoke(d, new object[] { text });
+                }
+                else
+                {
+                    AddStringToPingConsole(text, true);
+                    //this.ConsolePing.Text += text;
+                }
+            }
+            catch (Exception ex)
+            {
+                //ignore
+            }
+        }
+
+        //private void WriteOutputHandler(object sendingProcess,
+        //    DataReceivedEventArgs outLine)
+        //{
+        //    SetText(outLine.Data);
+        //}
         #endregion
 
     }
